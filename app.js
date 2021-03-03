@@ -33,14 +33,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
   res.render('index', { currentTime: new Date() });
 });
 
 // You can store routings in multiple files according to their categories.
 app.use('/todos', require('./routes/todos'));
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   // If there is no routing answering, throw a 404 exception to exception handlers.
   if (!res.headersSent) {
     var err = new Error('Not Found');
@@ -50,7 +50,7 @@ app.use(function(req, res, next) {
 });
 
 // error handlers
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   if (req.timedout && req.headers.upgrade === 'websocket') {
     // Ignores websocket timeout.
     return;
@@ -61,7 +61,11 @@ app.use(function(err, req, res, next) {
     console.error(err.stack || err);
   }
   if (req.timedout) {
-    console.error('Request timeout: url=%s, timeout=%d, please check whether its execution time is too long, or the response callback is invalid.', req.originalUrl, err.timeout);
+    console.error(
+      'Request timeout: url=%s, timeout=%d, please check whether its execution time is too long, or the response callback is invalid.',
+      req.originalUrl,
+      err.timeout
+    );
   }
   res.status(statusCode);
   // Do not output exception details by default.
@@ -72,7 +76,7 @@ app.use(function(err, req, res, next) {
   }
   res.render('error', {
     message: err.message,
-    error: error
+    error: error,
   });
 });
 

@@ -29,7 +29,7 @@ app.enable('trust proxy');
 
 app.use(express.static('public'));
 
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
@@ -39,6 +39,10 @@ app.get('/', function (req, res) {
 
 // You can store routings in multiple files according to their categories.
 app.use('/todos', require('./routes/todos'));
+
+app.use('/leanticket', require('./routes/leanticket'));
+
+app.use('/slack', require('./routes/slack'));
 
 app.use(function (req, res, next) {
   // If there is no routing answering, throw a 404 exception to exception handlers.

@@ -55,16 +55,18 @@ async function notifyUpdateTicket(ticket, updatedKeys) {
   const notification = await new AV.Query('SlackNotification')
     .equalTo('ticket.objectId', ticket.objectId)
     .first();
-  if (updatedKeys.includes('assignee')) {
-    const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
-    await assignee.fetch({}, { useMasterKey: true });
-    notification.set('assignee', {
-      objectId: assignee.id,
-      displayName: await getAssigneeDisplayName(assignee.toJSON()),
-    });
-    notification.save(null, { useMasterKey: true });
-  }
+
   if (notification) {
+    if (updatedKeys.includes('assignee')) {
+      const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
+      await assignee.fetch({}, { useMasterKey: true });
+      notification.set('assignee', {
+        objectId: assignee.id,
+        displayName: await getAssigneeDisplayName(assignee.toJSON()),
+      });
+      notification.save(null, { useMasterKey: true });
+    }
+
     client.chat.update({
       channel: notification.get('channel'),
       ts: notification.get('ts'),

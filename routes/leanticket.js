@@ -21,7 +21,7 @@ router.post('/webhook', (req, res) => {
   if (hash === sign) {
     handleIncomingInvocation(JSON.parse(req.body));
   } else {
-    console.error(`[LeanTicket.webhook]: sign mismatch`);
+    console.error('[LeanTicket.webhook]: sign mismatch');
   }
 });
 

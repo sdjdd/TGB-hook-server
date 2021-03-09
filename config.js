@@ -8,4 +8,12 @@ module.exports = {
 
   SLACK_TOKEN: process.env.SLACK_TOKEN,
   SLACK_CHANNEL: process.env.SLACK_CHANNEL,
+
+  jira: {
+    host: process.env.JIRA_HOST,
+    projectId: process.env.JIRA_PROJECT_ID,
+    issueTypeId: process.env.JIRA_ISSUE_TYPE_ID,
+    componentIds: process.env.JIRA_COMPONENT_IDS?.split(','),
+    customFields: JSON.parse(process.env.JIRA_CUSTOM_FIELDS || '{}'),
+  },
 };

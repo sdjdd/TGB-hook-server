@@ -3,6 +3,7 @@ const { LEANTICKET_HOST } = require('../../../config');
 const MESSAGE_COLOR = {
   RED: '#DC3545',
   YELLOW: '#FFC107',
+  ORANGE: '#FD7E14',
   GREEN: '#198754',
 };
 
@@ -28,7 +29,11 @@ function basicMessage(ticket, assignedTo) {
 
   let color;
   if (isTicketOpen) {
-    color = assignedTo === '(未分配)' ? MESSAGE_COLOR.RED : MESSAGE_COLOR.YELLOW;
+    if (ticket.jiraIssue) {
+      color = MESSAGE_COLOR.ORANGE;
+    } else {
+      color = assignedTo === '(未分配)' ? MESSAGE_COLOR.RED : MESSAGE_COLOR.YELLOW;
+    }
   } else {
     color = MESSAGE_COLOR.GREEN;
   }

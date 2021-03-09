@@ -51,13 +51,14 @@ async function notifyNewTicket(ticket) {
  * @param {object} ticket
  * @param {array} updatedKeys
  */
-async function notifyUpdateTicket(ticket, updatedKeys) {
+async function notifyUpdateTicket(ticket, updatedKeys = []) {
   const notification = await new AV.Query('SlackNotification')
     .equalTo('ticket.objectId', ticket.objectId)
     .first();
 
   if (notification) {
     if (updatedKeys.includes('assignee')) {
+      // TODO: 使用 open-leancloud-storage, 以支持和工单应用分开部署
       const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
       await assignee.fetch({}, { useMasterKey: true });
       notification.set('assignee', {

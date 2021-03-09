@@ -13,6 +13,7 @@ const app = LC.init({
   masterKey: LEANTICKET_MASTER_KEY,
   serverURL: LEANTICKET_SERVER_URL,
 });
+const db = app.database();
 const cloud = app.cloud();
 
-module.exports = { app, cloud };
+module.exports = { app, db, cloud };

@@ -44,6 +44,8 @@ app.use('/leanticket', require('./routes/leanticket'));
 
 app.use('/slack', require('./routes/slack'));
 
+app.use('/jira', require('./routes/jira'));
+
 app.use(function (req, res, next) {
   // If there is no routing answering, throw a 404 exception to exception handlers.
   if (!res.headersSent) {

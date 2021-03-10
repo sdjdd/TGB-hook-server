@@ -8,7 +8,8 @@ const app = LC.init({
   masterKey: leanTicket.masterKey,
   serverURL: leanTicket.serverURL,
 });
+const auth = app.auth();
 const db = app.database();
 const cloud = app.cloud();
 
-module.exports = { app, db, cloud };
+module.exports = { app, auth, db, cloud };

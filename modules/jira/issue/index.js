@@ -3,9 +3,9 @@ const https = require('https');
 
 const { db } = require('../../leanticket/app');
 const { notifyUpdateTicket } = require('../../slack/notification');
-const { jira: config } = require('../../../config');
+const { jira: config, leanTicket } = require('../../../config');
 
-if (!config.host || !config.issueTypeId || !config.projectId) {
+if (!config.host || !config.accessToken || !config.issueTypeId || !config.projectId) {
   console.error('[Jira]: 缺少必要的配置');
   process.exit(1);
 }
@@ -39,14 +39,14 @@ async function getTicketData(ticketId) {
  * @param {string} content
  * @param {object} [metaData]
  */
-function makeIssueDescription(content, metaData) {
-  let desc = 'h2. *用户描述:*\n' + content;
-  if (metaData) {
-    desc += '\n\nh2. *Metadata:*\n||key||value||\n';
-    Object.entries(metaData).map(
-      ([key, value]) => (desc += `|${key}|${value ?? '(undefined)'}|\n`)
-    );
+function makeIssueDescription(ticket) {
+  let desc = `h3. *用户描述:*\n${ticket.content}`;
+  if (ticket.metaData) {
+    desc += '\n\nh3. *Metadata:*\n||key||value||';
+    Object.entries(ticket.metaData).map(([key, value]) => (desc += `\n|${key}|${value}|`));
   }
+  const ticketURL = `${leanTicket.host}/tickets/${ticket.nid}`;
+  desc += `\n\nh3. *LeanTicket 链接:*\n${ticketURL}`;
   return desc;
 }
 
@@ -80,7 +80,7 @@ async function createIssueFromTicket(ticketId, accessToken) {
     issuetype: { id: config.issueTypeId },
     components: config.componentIds?.map((id) => ({ id })),
     labels: [ticket.categoryName],
-    description: makeIssueDescription(ticket.content, ticket.metaData),
+    description: makeIssueDescription(ticket),
   };
 
   const [result, fileURLs] = await Promise.all([
@@ -88,33 +88,30 @@ async function createIssueFromTicket(ticketId, accessToken) {
     getFileURLs(ticket.files.map((f) => f.objectId)),
   ]);
 
-  const uploadTasks = fileURLs.map((url) => {
-    return new Promise((resolve, reject) => {
-      https
-        .get(url, (res) => {
-          jira.addAttachmentOnIssue(result.id, res).then(resolve).catch(reject);
-        })
-        .once('error', reject);
-    });
-  });
-  await Promise.all(
-    uploadTasks.concat(
-      db
-        .class('JiraIssue')
-        .add({
-          ACL: {},
-          ticket: { objectId: ticketId },
-          key: result.key,
-        })
-        .then((issue) => (ticket.jiraIssue = issue))
-    )
-  );
+  await db
+    .class('JiraIssue')
+    .add({
+      ACL: {},
+      ticket: { objectId: ticketId },
+      key: result.key,
+    })
+    .then((issue) => (ticket.jiraIssue = issue));
 
   notifyUpdateTicket(ticket);
+
+  fileURLs.forEach((url) => {
+    https.get(url, (res) => {
+      jira.addAttachmentOnIssue(result.id, res);
+    });
+  });
 
   return getIssueURL(result.key);
 }
 
+/**
+ * @param {string} key
+ * @returns {string}
+ */
 function getIssueURL(key) {
   return `https://${config.host}/browse/${key}`;
 }
@@ -127,4 +124,4 @@ async function getIssueData(ticketId) {
   return issue?.toJSON();
 }
 
-module.exports = { createIssueFromTicket, getIssueURL, getIssueData };
+module.exports = { createIssueFromTicket, getIssueData, getIssueURL };

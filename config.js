@@ -13,6 +13,7 @@ module.exports = {
   },
   jira: {
     host: process.env.JIRA_HOST,
+    accessToken: process.env.JIRA_ACCESS_TOKEN,
     projectId: process.env.JIRA_PROJECT_ID,
     issueTypeId: process.env.JIRA_ISSUE_TYPE_ID,
     componentIds: process.env.JIRA_COMPONENT_IDS?.split(','),

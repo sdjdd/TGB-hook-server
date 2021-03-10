@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const router = require('express').Router();
 const bodyParser = require('body-parser');
 const { handleIncomingInvocation } = require('../modules/leanticket/webhook');
-const { LEANTICKET_WEBHOOK_SECRET } = require('../config');
+const { leanTicket } = require('../config');
 
 router.use(bodyParser.text({ type: ['application/json'] }));
 
@@ -15,7 +15,7 @@ router.post('/webhook', (req, res) => {
   res.status(200).end();
 
   const hash = crypto
-    .createHmac('sha256', LEANTICKET_WEBHOOK_SECRET)
+    .createHmac('sha256', leanTicket.webhookSecret)
     .update(req.body)
     .digest('base64');
   if (hash === sign) {

@@ -1,4 +1,4 @@
-const { LEANTICKET_HOST } = require('../../../config');
+const { leanTicket } = require('../../../config');
 
 const MESSAGE_COLOR = {
   RED: '#DC3545',
@@ -39,8 +39,8 @@ function basicMessage(ticket, assignedTo) {
   }
 
   let url;
-  if (LEANTICKET_HOST) {
-    url = LEANTICKET_HOST + '/tickets/' + ticket.nid;
+  if (leanTicket.host) {
+    url = leanTicket.host + '/tickets/' + ticket.nid;
   }
 
   const action = {

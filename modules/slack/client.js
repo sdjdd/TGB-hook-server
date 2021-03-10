@@ -1,4 +1,4 @@
 const { WebClient } = require('@slack/web-api');
-const { SLACK_TOKEN } = require('../../config');
+const { slack } = require('../../config');
 
-exports.client = new WebClient(SLACK_TOKEN);
+exports.client = new WebClient(slack.token);

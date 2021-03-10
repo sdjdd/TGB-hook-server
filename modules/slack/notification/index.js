@@ -1,6 +1,6 @@
 const AV = require('leancloud-storage');
 const { client } = require('../client');
-const { SLACK_CHANNEL } = require('../../../config');
+const { slack: config } = require('../../../config');
 const { basicMessage } = require('./message');
 
 /**
@@ -29,7 +29,7 @@ async function notifyNewTicket(ticket) {
   const assigneeName = await getAssigneeDisplayName(ticket.assignee);
 
   const { channel, ts } = await client.chat.postMessage({
-    channel: SLACK_CHANNEL,
+    channel: config.channel,
     ...basicMessage(ticket, assigneeName),
   });
 

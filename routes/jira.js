@@ -30,7 +30,7 @@ router.post('/issue', async (req, res) => {
     const url = await createIssueFromTicket(ticketId, accessToken);
     res.redirect(url);
   } catch (error) {
-    console.error('[Jira:createIssue]:', error);
+    console.error('[Jira.createIssue]:', error);
     res.status(400).send(error.message);
   }
 });

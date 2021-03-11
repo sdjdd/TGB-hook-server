@@ -85,7 +85,7 @@ async function createIssueFromTicket(ticketId, accessToken) {
   const jira = new JiraClient({
     protocol: 'https',
     host: config.host,
-    bearer: accessToken,
+    bearer: accessToken || config.access_token,
     apiVersion: '2',
     strictSSL: true,
   });

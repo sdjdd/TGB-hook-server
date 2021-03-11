@@ -36,5 +36,5 @@ AV.Cloud.define('TGB_createJiraIssue', async (req) => {
   if (issue) {
     return getIssueURL(issue.key);
   }
-  return createIssueFromTicket(ticketId, jira.accessToken);
+  return createIssueFromTicket(ticketId);
 });

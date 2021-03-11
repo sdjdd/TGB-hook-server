@@ -32,5 +32,9 @@ AV.Cloud.define('TGB_createJiraIssue', async (req) => {
   if (typeof ticketId !== 'string') {
     throw new AV.Cloud.Error('The ticketId must be a string', { status: 400 });
   }
+  const issue = await getIssueData(ticketId);
+  if (issue) {
+    return getIssueURL(issue.key);
+  }
   return createIssueFromTicket(ticketId, jira.accessToken);
 });

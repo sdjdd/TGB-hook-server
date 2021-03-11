@@ -1,28 +1,43 @@
 const JiraClient = require('jira-client');
 const https = require('https');
 
-const { db } = require('../../leanticket/app');
+const AV = require('leancloud-storage');
 const { notifyUpdateTicket } = require('../../slack/notification');
-const { jira: config, leanTicket } = require('../../../config');
+const { leanTicket } = require('../../../config');
 
-if (!config.host || !config.accessToken || !config.issueTypeId || !config.projectId) {
-  console.error('[Jira]: 缺少必要的配置');
-  process.exit(1);
+let config;
+async function loadConfig() {
+  const query = new AV.Query('HS_Config');
+  query.equalTo('namespace', 'jira');
+  query.select('key', 'value');
+  const objects = await query.find({ useMasterKey: true });
+  const newConfig = {};
+  objects.forEach((obj) => {
+    newConfig[obj.get('key')] = obj.get('value');
+  });
+  if (
+    !newConfig.host ||
+    !newConfig.access_token ||
+    !newConfig.issue_type_id ||
+    !newConfig.project_id
+  ) {
+    console.error('[Jira.loadConfig]: 缺少必要的配置');
+  }
+  return (config = newConfig);
 }
+loadConfig();
 
 /**
  * @param {string} categoryId
  * @returns {Promise<string>}
  */
 async function getCategoryName(categoryId) {
-  const category = await db
-    .class('Category')
-    .object(categoryId)
-    .get({ include: ['parent'], useMasterKey: true });
-  if (category.data.parent) {
-    return (await getCategoryName(category.data.parent.id)) + '/' + category.data.name;
+  const category = AV.Object.createWithoutData('Category', categoryId);
+  await category.fetch({ include: ['parent'] }, { useMasterKey: true });
+  if (category.has('parent')) {
+    return (await getCategoryName(category.get('parent').id)) + '/' + category.get('name');
   }
-  return category.data.name;
+  return category.get('name');
 }
 
 /**
@@ -30,8 +45,9 @@ async function getCategoryName(categoryId) {
  * @returns {object}
  */
 async function getTicketData(ticketId) {
-  const ticket = await db.class('Ticket').object(ticketId).get({ useMasterKey: true });
-  const categoryName = await getCategoryName(ticket.data.category.objectId);
+  const ticket = AV.Object.createWithoutData('Ticket', ticketId);
+  await ticket.fetch({}, { useMasterKey: true });
+  const categoryName = await getCategoryName(ticket.get('category').objectId);
   return { ...ticket.toJSON(), categoryName };
 }
 
@@ -55,13 +71,17 @@ function makeIssueDescription(ticket) {
  * @returns {Array<string>}
  */
 async function getFileURLs(fileIds) {
-  const pipeline = db.pipeline();
-  fileIds.map((id) => pipeline.get('_File', id));
-  const { results } = await pipeline.commit({ useMasterKey: true });
-  return results.map((file) => file.data.url);
+  const files = fileIds.map((id) => AV.Object.createWithoutData('_File', id));
+  await AV.Object.fetchAll(files, { useMasterKey: true });
+  return files.map((file) => file.get('url'));
 }
 
 async function createIssueFromTicket(ticketId, accessToken) {
+  if (!config) {
+    console.error('[Jira.createIssue]: config not initialized.', { ticketId, accessToken });
+    return;
+  }
+
   const jira = new JiraClient({
     protocol: 'https',
     host: config.host,
@@ -70,15 +90,13 @@ async function createIssueFromTicket(ticketId, accessToken) {
     strictSSL: true,
   });
 
-  const [ticket, user] = await Promise.all([getTicketData(ticketId), jira.getCurrentUser()]);
+  const ticket = await getTicketData(ticketId);
   const fields = {
-    ...config.customFields,
-    project: { id: config.projectId },
+    ...config.custom_fields,
+    project: { id: config.project_id },
     summary: ticket.title,
-    assignee: { name: user.name },
-    reporter: { name: user.name },
-    issuetype: { id: config.issueTypeId },
-    components: config.componentIds?.map((id) => ({ id })),
+    issuetype: { id: config.issue_type_id },
+    components: config.component_ids?.map((id) => ({ id })),
     labels: [ticket.categoryName],
     description: makeIssueDescription(ticket),
   };
@@ -88,14 +106,8 @@ async function createIssueFromTicket(ticketId, accessToken) {
     getFileURLs(ticket.files.map((f) => f.objectId)),
   ]);
 
-  await db
-    .class('JiraIssue')
-    .add({
-      ACL: {},
-      ticket: { objectId: ticketId },
-      key: result.key,
-    })
-    .then((issue) => (ticket.jiraIssue = issue));
+  const issue = await addIssueObject(result.key, ticketId);
+  ticket.jiraIssue = issue.toJSON();
 
   notifyUpdateTicket(ticket);
 
@@ -117,11 +129,19 @@ function getIssueURL(key) {
 }
 
 async function getIssueData(ticketId) {
-  const issue = await db
-    .class('JiraIssue')
-    .where('ticket.objectId', '==', ticketId)
-    .first({ useMasterKey: true });
+  const query = new AV.Query('JiraIssue');
+  query.equalTo('ticket.objectId', ticketId);
+  const issue = await query.first({ useMasterKey: true });
   return issue?.toJSON();
+}
+
+function addIssueObject(key, ticketId) {
+  const issue = new AV.Object('JiraIssue', {
+    key,
+    ACL: {},
+    ticket: { objectId: ticketId },
+  });
+  return issue.save(null, { useMasterKey: true });
 }
 
 module.exports = { createIssueFromTicket, getIssueData, getIssueURL };

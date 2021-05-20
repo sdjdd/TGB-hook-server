@@ -1,12 +1,12 @@
-const { auth } = require('../app');
+const AV = require('leancloud-storage');
 
 async function isCustomerService(userId) {
-  const count = await auth
-    .queryRole()
-    .where('name', '==', 'customerService')
-    .where('users', '==', auth.user(userId))
-    .count();
-  return count > 0;
+  const role = await new AV.Query('_Role')
+    .equalTo('name', 'customerService')
+    .equalTo('users', AV.Object.createWithoutData('_User', userId))
+    .select('objectId')
+    .first();
+  return !!role;
 }
 
 module.exports = { isCustomerService };

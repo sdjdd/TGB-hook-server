@@ -58,7 +58,6 @@ async function notifyUpdateTicket(ticket, updatedKeys = []) {
 
   if (notification) {
     if (updatedKeys.includes('assignee')) {
-      // TODO: 使用 open-leancloud-storage, 以支持和工单应用分开部署
       const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
       await assignee.fetch({}, { useMasterKey: true });
       notification.set('assignee', {

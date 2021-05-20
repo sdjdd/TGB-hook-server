@@ -18,8 +18,7 @@
     "express": "^4.16.4",
     "jira-client": "^6.21.1",
     "leancloud-storage": "^3.11.0",
-    "leanengine": "^3.3.2",
-    "open-leancloud-storage": "0.0.11"
+    "leanengine": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^1.18.7",

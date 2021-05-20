@@ -1,10 +1,9 @@
 const crypto = require('crypto');
-const router = require('express').Router();
-const bodyParser = require('body-parser');
+const express = require('express');
 const { handleIncomingInvocation } = require('../modules/leanticket/webhook');
 const { leanTicket } = require('../config');
 
-router.use(bodyParser.text({ type: ['application/json'] }));
+const router = Router().use(express.text({ type: ['application/json'] }));
 
 router.post('/webhook', (req, res) => {
   const sign = req.headers['x-leanticket-hmac-sha256'];

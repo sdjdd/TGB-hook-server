@@ -2,9 +2,6 @@
 
 var express = require('express');
 var timeout = require('connect-timeout');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
 var AV = require('leanengine');
 
 // Loads cloud function definitions.
@@ -12,10 +9,6 @@ var AV = require('leanengine');
 require('./cloud');
 
 var app = express();
-
-// Configures template engine.
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 // Configures default timeout.
 app.use(timeout('15s'));
@@ -30,8 +23,7 @@ app.enable('trust proxy');
 app.use(express.static('public'));
 
 // app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
 
 app.get('/', function (req, res) {
   res.render('index', { currentTime: new Date() });

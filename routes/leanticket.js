@@ -3,7 +3,7 @@ const express = require('express');
 const { handleIncomingInvocation } = require('../modules/leanticket/webhook');
 const { leanTicket } = require('../config');
 
-const router = Router().use(express.text({ type: ['application/json'] }));
+const router = express.Router().use(express.text({ type: ['application/json'] }));
 
 router.post('/webhook', (req, res) => {
   const sign = req.headers['x-leanticket-hmac-sha256'];

@@ -1,0 +1,55 @@
+{
+  "schema": {
+    "updatedAt": {
+      "type": "Date"
+    },
+    "key": {
+      "type": "String",
+      "v": 2,
+      "required": false,
+      "hidden": false
+    },
+    "ACL": {
+      "type": "ACL"
+    },
+    "objectId": {
+      "type": "String"
+    },
+    "value": {
+      "type": "Any",
+      "v": 2,
+      "required": false,
+      "hidden": false
+    },
+    "createdAt": {
+      "type": "Date"
+    },
+    "namespace": {
+      "type": "String",
+      "v": 2,
+      "required": false,
+      "hidden": false
+    }
+  },
+  "permissions": {
+    "create": {
+      "*": true
+    },
+    "find": {
+      "*": true
+    },
+    "get": {
+      "*": true
+    },
+    "update": {
+      "*": true
+    },
+    "delete": {
+      "*": true
+    },
+    "add_fields": {
+      "*": true
+    }
+  },
+  "indexes": []
+}

@@ -1,0 +1,62 @@
+{
+  "schema": {
+    "objectId": {
+      "type": "String"
+    },
+    "ACL": {
+      "type": "ACL"
+    },
+    "createdAt": {
+      "type": "Date"
+    },
+    "updatedAt": {
+      "type": "Date"
+    },
+    "ticket": {
+      "type": "Object",
+      "v": 2,
+      "required": false,
+      "hidden": false
+    },
+    "key": {
+      "type": "String",
+      "v": 2,
+      "required": false,
+      "hidden": false,
+      "comment": "",
+      "read_only": false
+    }
+  },
+  "permissions": {
+    "create": {
+      "*": true
+    },
+    "find": {
+      "*": true
+    },
+    "get": {
+      "*": true
+    },
+    "update": {
+      "*": true
+    },
+    "delete": {
+      "*": true
+    },
+    "add_fields": {
+      "*": true
+    }
+  },
+  "indexes": [
+    {
+      "v": 2,
+      "unique": true,
+      "key": {
+        "key": 1
+      },
+      "name": "-user-key_1",
+      "ns": "AINt8oyT3yCA4LUG8ONUWBQX-gzGzoHsz.JiraIssue",
+      "background": true
+    }
+  ]
+}

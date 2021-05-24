@@ -26,7 +26,9 @@ app.use(express.static('public'));
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/', function (req, res) {
-  res.render('index', { currentTime: new Date() });
+  res.json({
+    project: 'Hook Server of TapDesk',
+  });
 });
 
 // You can store routings in multiple files according to their categories.

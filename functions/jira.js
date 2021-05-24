@@ -16,7 +16,7 @@ async function assertUserIsCustomerService(user) {
   }
 }
 
-AV.Cloud.define('TGB_getJiraIssueURL', async (req) => {
+AV.Cloud.define('HS_getJiraIssueURL', async (req) => {
   await assertUserIsCustomerService(req.currentUser);
   const { ticketId } = req.params;
   if (typeof ticketId !== 'string') {
@@ -26,7 +26,7 @@ AV.Cloud.define('TGB_getJiraIssueURL', async (req) => {
   return issue ? getIssueURL(issue.key) : '';
 });
 
-AV.Cloud.define('TGB_createJiraIssue', async (req) => {
+AV.Cloud.define('HS_createJiraIssue', async (req) => {
   await assertUserIsCustomerService(req.currentUser);
   const { ticketId } = req.params;
   if (typeof ticketId !== 'string') {

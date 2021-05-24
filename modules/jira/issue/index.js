@@ -1,9 +1,9 @@
 const JiraClient = require('jira-client');
 const https = require('https');
-
 const AV = require('leancloud-storage');
-const { notifyUpdateTicket } = require('../../slack/notification');
+
 const { leanTicket } = require('../../../config');
+const events = require('../events');
 
 let config;
 async function loadConfig() {
@@ -109,7 +109,7 @@ async function createIssueFromTicket(ticketId, accessToken) {
   const issue = await addIssueObject(result.key, ticketId);
   ticket.jiraIssue = issue.toJSON();
 
-  notifyUpdateTicket(ticket);
+  events.emit('issue:create', { ticket, key: result.key });
 
   fileURLs.forEach((url) => {
     https.get(url, (res) => {

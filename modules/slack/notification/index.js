@@ -1,7 +1,10 @@
 const AV = require('leancloud-storage');
+
 const { client } = require('../client');
 const { slack: config } = require('../../../config');
 const { basicMessage } = require('./message');
+const leanTicketEvents = require('../../leanticket/events');
+const jiraEvents = require('../../jira/events');
 
 /**
  * @param {object} assignee
@@ -75,4 +78,6 @@ async function notifyUpdateTicket(ticket, updatedKeys = []) {
   }
 }
 
-module.exports = { notifyNewTicket, notifyUpdateTicket };
+leanTicketEvents.on('ticket:create', notifyNewTicket);
+leanTicketEvents.on('ticket:update', notifyUpdateTicket);
+jiraEvents.on('issue:create', ({ ticket }) => notifyUpdateTicket(ticket));

@@ -1,13 +1,13 @@
-const { notifyNewTicket, notifyUpdateTicket } = require('../../slack/notification');
+const events = require('../events');
 
 function handleIncomingInvocation(data) {
   console.log('[LeanTicket:webhook]: incoming data:', data);
   switch (data.action) {
     case 'ticket.create':
-      notifyNewTicket(data.payload.ticket);
+      events.emit('ticket:create', data.payload.ticket);
       break;
     case 'ticket.update':
-      notifyUpdateTicket(data.payload.ticket, data.payload.updatedKeys);
+      events.emit('ticket:update', data.payload.ticket, data.payload.updatedKeys);
       break;
   }
 }

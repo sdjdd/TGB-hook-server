@@ -1,5 +1,5 @@
 const JiraClient = require('jira-client');
-const https = require('https');
+const axios = require('axios').default;
 const AV = require('leancloud-storage');
 
 const { leanTicket } = require('../../../config');
@@ -59,7 +59,7 @@ function makeIssueDescription(ticket) {
   let desc = `h3. *用户描述:*\n${ticket.content}`;
   if (ticket.metaData) {
     desc += '\n\nh3. *Metadata:*\n||key||value||';
-    Object.entries(ticket.metaData).map(([key, value]) => (desc += `\n|${key}|${value}|`));
+    Object.entries(ticket.metaData).map(([key, value]) => (desc += `\n|${key}|${value || '-'}|`));
   }
   const ticketURL = `${leanTicket.host}/tickets/${ticket.nid}`;
   desc += `\n\nh3. *LeanTicket 链接:*\n${ticketURL}`;
@@ -112,8 +112,8 @@ async function createIssueFromTicket(ticketId, accessToken) {
   events.emit('issue:create', { ticket, key: result.key });
 
   fileURLs.forEach((url) => {
-    https.get(url, (res) => {
-      jira.addAttachmentOnIssue(result.id, res);
+    axios.get(url, { responseType: 'stream' }).then((res) => {
+      jira.addAttachmentOnIssue(result.id, res.data);
     });
   });
 

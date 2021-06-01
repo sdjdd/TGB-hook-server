@@ -1,4 +1,4 @@
-const AV = require('leancloud-storage');
+const AV = require('leanengine');
 const { client } = require('../client');
 
 function isCloseTicketAction(actions) {
@@ -29,7 +29,7 @@ async function handleCloseTicket(slackUserId, ticketId) {
 
   await user.fetch({ keys: 'sessionToken' }, { useMasterKey: true });
 
-  AV.Cloud.run('operateTicket', { ticketId, action: 'close' }, { user });
+  AV.Cloud.run('operateTicket', { ticketId, action: 'close' }, { user, remote: true });
 }
 
 module.exports = { handleIncomingInvocation };

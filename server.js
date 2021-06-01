@@ -28,3 +28,5 @@ app.listen(PORT, function (err) {
     console.error('Unhandled Rejection at: Promise ', p, ' reason: ', reason.stack);
   });
 });
+
+require('./modules/slack/notification');

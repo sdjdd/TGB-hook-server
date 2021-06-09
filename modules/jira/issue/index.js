@@ -67,8 +67,8 @@ function makeIssueDescription(ticket) {
 }
 
 /**
- * @param {Array<string>} fileIds
- * @returns {Array<string>}
+ * @param {string[]} fileIds
+ * @returns {Promise<string[]>}
  */
 async function getFileURLs(fileIds) {
   const files = fileIds.map((id) => AV.Object.createWithoutData('_File', id));
@@ -103,7 +103,7 @@ async function createIssueFromTicket(ticketId, accessToken) {
 
   const [result, fileURLs] = await Promise.all([
     jira.addNewIssue({ fields }),
-    getFileURLs(ticket.files.map((f) => f.objectId)),
+    ticket.files?.length ? getFileURLs(ticket.files.map((f) => f.objectId)) : [],
   ]);
 
   const issue = await addIssueObject(result.key, ticketId);

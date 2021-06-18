@@ -29,7 +29,10 @@ async function getAssigneeDisplayName(assignee) {
 }
 
 async function notifyNewTicket(ticket) {
-  const assigneeName = await getAssigneeDisplayName(ticket.assignee);
+  let assigneeName = '<未分配>';
+  if (ticket.assignee) {
+    assigneeName = await getAssigneeDisplayName(ticket.assignee);
+  }
 
   const { channel, ts } = await client.chat.postMessage({
     channel: config.channel,
@@ -44,7 +47,7 @@ async function notifyNewTicket(ticket) {
       objectId: ticket.objectId,
     },
     assignee: {
-      objectId: ticket.assignee.objectId,
+      objectId: ticket.assignee?.objectId || '',
       displayName: assigneeName,
     },
   }).save(null, { useMasterKey: true });

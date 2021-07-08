@@ -32,7 +32,7 @@ function basicMessage(ticket, assignedTo) {
     if (ticket.jiraIssue) {
       color = MESSAGE_COLOR.ORANGE;
     } else {
-      color = assignedTo === '(未分配)' ? MESSAGE_COLOR.RED : MESSAGE_COLOR.YELLOW;
+      color = !ticket.assignee ? MESSAGE_COLOR.RED : MESSAGE_COLOR.YELLOW;
     }
   } else {
     color = MESSAGE_COLOR.GREEN;
@@ -50,7 +50,7 @@ function basicMessage(ticket, assignedTo) {
         type: 'button',
         text: {
           type: 'plain_text',
-          text: '点击查看',
+          text: '查看工单',
         },
         url,
       },
@@ -100,7 +100,7 @@ function basicMessage(ticket, assignedTo) {
         },
         {
           type: 'mrkdwn',
-          text: `*分配给:*\n${assignedTo}`,
+          text: `*负责人:*\n${assignedTo}`,
         },
       ],
     },

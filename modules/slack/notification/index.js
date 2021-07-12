@@ -28,8 +28,9 @@ async function getAssigneeDisplayName(assignee) {
   return assignee.name || assignee.username;
 }
 
+const NONE = '<无>';
 async function notifyNewTicket(ticket) {
-  let assigneeName = '<未分配>';
+  let assigneeName = NONE;
   if (ticket.assignee) {
     assigneeName = await getAssigneeDisplayName(ticket.assignee);
   }
@@ -64,12 +65,19 @@ async function notifyUpdateTicket(ticket, updatedKeys = []) {
 
   if (notification) {
     if (updatedKeys.includes('assignee')) {
-      const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
-      await assignee.fetch({}, { useMasterKey: true });
-      notification.set('assignee', {
-        objectId: assignee.id,
-        displayName: await getAssigneeDisplayName(assignee.toJSON()),
-      });
+      if (ticket.assignee) {
+        const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
+        await assignee.fetch({}, { useMasterKey: true });
+        notification.set('assignee', {
+          objectId: assignee.id,
+          displayName: await getAssigneeDisplayName(assignee.toJSON()),
+        });
+      } else {
+        notification.set('assignee', {
+          objectId: '',
+          displayName: NONE,
+        });
+      }
       notification.save(null, { useMasterKey: true });
     }
 

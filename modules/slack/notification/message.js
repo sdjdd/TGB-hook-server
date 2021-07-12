@@ -32,7 +32,7 @@ function basicMessage(ticket, assignedTo) {
     if (ticket.jiraIssue) {
       color = MESSAGE_COLOR.ORANGE;
     } else {
-      color = !ticket.assignee ? MESSAGE_COLOR.RED : MESSAGE_COLOR.YELLOW;
+      color = ticket.assignee ? MESSAGE_COLOR.YELLOW : MESSAGE_COLOR.RED;
     }
   } else {
     color = MESSAGE_COLOR.GREEN;

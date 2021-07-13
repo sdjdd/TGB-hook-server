@@ -59,33 +59,41 @@ async function notifyNewTicket(ticket) {
  * @param {array} updatedKeys
  */
 async function notifyUpdateTicket(ticket, updatedKeys = []) {
-  const notification = await new AV.Query('SlackNotification')
-    .equalTo('ticket.objectId', ticket.objectId)
-    .first();
-
-  if (notification) {
-    if (updatedKeys.includes('assignee')) {
-      if (ticket.assignee) {
-        const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
-        await assignee.fetch({}, { useMasterKey: true });
-        notification.set('assignee', {
-          objectId: assignee.id,
-          displayName: await getAssigneeDisplayName(assignee.toJSON()),
-        });
-      } else {
-        notification.set('assignee', {
-          objectId: '',
-          displayName: NONE,
-        });
-      }
-      notification.save(null, { useMasterKey: true });
+  try {
+    if (updatedKeys.length === 1 && updatedKeys.includes('unreadCount')) {
+      return;
     }
 
-    client.chat.update({
-      channel: notification.get('channel'),
-      ts: notification.get('ts'),
-      ...basicMessage(ticket, notification.get('assignee').displayName),
-    });
+    const notification = await new AV.Query('SlackNotification')
+      .equalTo('ticket.objectId', ticket.objectId)
+      .first();
+
+    if (notification) {
+      if (updatedKeys.includes('assignee')) {
+        if (ticket.assignee) {
+          const assignee = AV.Object.createWithoutData('_User', ticket.assignee.objectId);
+          await assignee.fetch({}, { useMasterKey: true });
+          notification.set('assignee', {
+            objectId: assignee.id,
+            displayName: await getAssigneeDisplayName(assignee.toJSON()),
+          });
+        } else {
+          notification.set('assignee', {
+            objectId: '',
+            displayName: NONE,
+          });
+        }
+        notification.save(null, { useMasterKey: true });
+      }
+
+      client.chat.update({
+        channel: notification.get('channel'),
+        ts: notification.get('ts'),
+        ...basicMessage(ticket, notification.get('assignee').displayName),
+      });
+    }
+  } catch (error) {
+    console.error(error);
   }
 }
 

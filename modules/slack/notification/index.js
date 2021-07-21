@@ -30,28 +30,32 @@ async function getAssigneeDisplayName(assignee) {
 
 const NONE = '<无>';
 async function notifyNewTicket(ticket) {
-  let assigneeName = NONE;
-  if (ticket.assignee) {
-    assigneeName = await getAssigneeDisplayName(ticket.assignee);
+  try {
+    let assigneeName = NONE;
+    if (ticket.assignee) {
+      assigneeName = await getAssigneeDisplayName(ticket.assignee);
+    }
+
+    const { channel, ts } = await client.chat.postMessage({
+      channel: config.channel,
+      ...basicMessage(ticket, assigneeName),
+    });
+
+    await new AV.Object('SlackNotification', {
+      ACL: {},
+      channel,
+      ts,
+      ticket: {
+        objectId: ticket.objectId,
+      },
+      assignee: {
+        objectId: ticket.assignee?.objectId || '',
+        displayName: assigneeName,
+      },
+    }).save(null, { useMasterKey: true });
+  } catch (error) {
+    console.error(error);
   }
-
-  const { channel, ts } = await client.chat.postMessage({
-    channel: config.channel,
-    ...basicMessage(ticket, assigneeName),
-  });
-
-  await new AV.Object('SlackNotification', {
-    ACL: {},
-    channel,
-    ts,
-    ticket: {
-      objectId: ticket.objectId,
-    },
-    assignee: {
-      objectId: ticket.assignee?.objectId || '',
-      displayName: assigneeName,
-    },
-  }).save(null, { useMasterKey: true });
 }
 
 /**

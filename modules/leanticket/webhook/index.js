@@ -1,7 +1,7 @@
 const events = require('../events');
 
 function handleIncomingInvocation(data) {
-  console.log('[LeanTicket:webhook]: incoming data:', data);
+  console.log('[LeanTicket:webhook]: incoming data:', data.action, data.payload.ticket.objectId);
   switch (data.action) {
     case 'ticket.create':
       events.emit('ticket:create', data.payload.ticket);

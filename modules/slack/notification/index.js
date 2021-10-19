@@ -101,6 +101,8 @@ async function notifyUpdateTicket(ticket, updatedKeys = []) {
   }
 }
 
-leanTicketEvents.on('ticket:create', notifyNewTicket);
-leanTicketEvents.on('ticket:update', notifyUpdateTicket);
-jiraEvents.on('issue:create', ({ ticket }) => notifyUpdateTicket(ticket));
+if (client) {
+  leanTicketEvents.on('ticket:create', notifyNewTicket);
+  leanTicketEvents.on('ticket:update', notifyUpdateTicket);
+  jiraEvents.on('issue:create', ({ ticket }) => notifyUpdateTicket(ticket));
+}

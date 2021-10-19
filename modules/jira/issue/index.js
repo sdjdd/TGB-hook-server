@@ -76,6 +76,14 @@ async function getFileURLs(fileIds) {
   return files.map((file) => file.get('url'));
 }
 
+/**
+ * @param {string} str
+ * @returns {string}
+ */
+function removeSpace(str) {
+  return str.replace(/\s/g, '');
+}
+
 async function createIssueFromTicket(ticketId, accessToken) {
   if (!config) {
     console.error('[Jira.createIssue]: config not initialized.', { ticketId, accessToken });
@@ -97,7 +105,7 @@ async function createIssueFromTicket(ticketId, accessToken) {
     summary: ticket.title,
     issuetype: { id: config.issue_type_id },
     components: config.component_ids?.map((id) => ({ id })),
-    labels: [ticket.categoryName],
+    labels: [removeSpace(ticket.categoryName)],
     description: makeIssueDescription(ticket),
   };
 
